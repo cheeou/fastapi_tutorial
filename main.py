@@ -47,6 +47,24 @@ def get_user(db, username: str):
         user_dict = db[username]
         return UserInDB(**user_dict)
 
+def fake_decode_token(token):
+    user = get_user(fake_users_db, token)
+    return user
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """
+    :parameter - Depends로 outh2_scheme 객체에서 return된 token값을 str 타입으로 token 파라미터에 저장
+    """
+    user = fake_decode_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
+
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user_dict = fake_users_db.get(form_data.username)
