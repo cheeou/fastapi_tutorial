@@ -1,29 +1,60 @@
-from fastapi import FastAPI
-from starlette.responses import FileResponse
+from typing import Annotated, Optional
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
 from pydantic import BaseModel
 
 app = FastAPI()
 
-class Address(BaseModel):
-    city: str
-    country: str
+fake_users_db = {
+    "johndoe": {
+        "username": "johndoe",
+        "full_name": "John Doe",
+        "email": "johndoe@example.com",
+        "hashed_password": "fakehashedsecret",
+        "disabled": False,
+    },
+    "alice": {
+        "username": "alice",
+        "full_name": "Alice Wonderson",
+        "email": "alice@example.com",
+        "hashed_password": "fakehashedsecret2",
+        "disabled": True,
+    },
+}
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def fake_hash_password(password: str):
+    return "fakehashed" + password
+# Bearer + <token> 추출
+
+
+# User 모델
 class User(BaseModel):
-    name: str
-    address: Address
+    username: str # 필수값
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    disabled: Optional[bool] = None
 
-@app.get("/")
-def index():
-    return 'hello'
+# 가상 server db
+class UserInDB(User):
+    hashed_password: str
 
-@app.get("/data")
-def get_data():
-    return {'hello': "hello text"}
+def get_user(db, username: str):
+    if username in db:
+        user_dict = db[username]
+        return UserInDB(**user_dict)
 
-@app.get("/index")
-def get_file_data():
-    return FileResponse('index.html')
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user_dict = fake_users_db.get(form_data.username)
+    if not user_dict:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+    user = UserInDB(**user_dict)
+    hashed_password = fake_hash_password(form_data.password)
+    if not hashed_password == user.hashed_password:
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-@app.post("/send")
-def send_db(data: User):
-    return "전송완료"
+    return {"access_token": user.username, "token_type": "bearer"}
