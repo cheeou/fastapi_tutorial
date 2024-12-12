@@ -10,10 +10,11 @@ load_dotenv()
 
 # 환경 변수 가져오기
 SECRET_KEY = os.getenv("SECRET_KEY")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 # JWT 구성 요소
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
 
 
 class UserService:
