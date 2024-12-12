@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from services import UserService, JWTService
@@ -14,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user_dict = fake_users_db.get(form_data.username)
     if not user_dict:
         raise HTTPException(
