@@ -12,6 +12,8 @@ uvicorn = "^0.32.1"
 bcrypt = "^4.2.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+webtool = "^0.0.11"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

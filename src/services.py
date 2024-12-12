@@ -3,8 +3,15 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+# 환경 변수 가져오기
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 # JWT 구성 요소
-SECRET_KEY = "606e4339bb801dce73f1bef013aba305d02ead1bc99a4db0f2998ecbfd7261b3"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

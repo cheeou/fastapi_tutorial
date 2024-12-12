@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from services import UserService, JWTService
 from database import fake_users_db
 from models import User, Token
-
+from webtool.cache import RedisCache
 app = FastAPI()
 
 # 서비스 인스턴스 생성
@@ -46,3 +46,7 @@ async def read_users_me(token: str = Depends(oauth2_scheme)):
     if not user_dict:
         raise HTTPException(status_code=404, detail="User not found")
     return User(**user_dict)
+
+redis = RedisCache("redis://127.0.0.1:6379/0")
+
+
