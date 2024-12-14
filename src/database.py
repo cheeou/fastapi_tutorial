@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from dotenv import load_dotenv
 import os
 
@@ -32,7 +31,8 @@ declareative_base() -> Base
 -Base 상속 받아 ORM 클래스와 DB 맵핑
 
 """
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 def init_db():
     Base.metadata.create_all(bind=engine)
