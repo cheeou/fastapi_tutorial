@@ -3,6 +3,10 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 
+from database import Session
+from schema import UserCreate
+from models import User
+
 from dotenv import load_dotenv
 import os
 
@@ -21,6 +25,7 @@ class UserService:
     def __init__(self):
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
     def hash_password(self, password: str) -> str:
         """
         비밀번호를 해싱하여 반환
@@ -32,6 +37,25 @@ class UserService:
         입력된 비밀번호가 저장된 해시와 일치하는지 확인
         """
         return self.pwd_context.verify(plain_password, hashed_password)
+
+    def register_user(self, user: UserCreate, db: Session):
+        existing_user = db.query(User).filter(User.username == user.username).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already registered",
+            )
+
+        # 비밀번호 해싱처리
+        hashed_password = self.hash_password(user.password)
+
+        # User 객체 생성 데이터베이스 추가
+        new_user = User(username=user.username, password=hashed_password)
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return new_user
 
 
 class JWTService:

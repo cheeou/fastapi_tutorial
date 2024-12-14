@@ -48,7 +48,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 user_service = UserService()
 
 @app.get("/test-db")
-async def test_db_connection(db: Session = Depends(get_db)):
+async def test_db_connection(db: Annotated[Session, Depends(get_db)]):
     try:
         result = db.execute(text("SELECT 1"))
         return {"db_status": "connected", "result": result}
@@ -59,30 +59,26 @@ async def test_db_connection(db: Session = Depends(get_db)):
             detail="Database connection failed",
         )
 
-@app.post("/register", status_code=status.HTTP_201_CREATED)
-async def register_user(user: UserCreate, db: Session = Depends(get_db)):
-
-    # 사용자 이름 중복 체크
-    existing_user = db.query(User).filter(User.username == user.username).first()
-    if existing_user:
-        logger.warning(f"{user.username} already exists")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken",
-        )
+@app.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        201: {"description": "User created"},
+    },
+)
+async def register(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
 
     try:
-        # 비밀번호 해싱
-        hashed_password = user_service.hash_password(user.password)
+        new_user = user_service.register_user(user, db)
+        return {"message": f"User {new_user.username} registered"}
 
-        # User 객체 생성 및 데이터베이스에 추가
-        new_user = User(username=user.username, password=hashed_password)
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-
-        return {"message": f"User {new_user.username} created successfully"}
     except Exception as e:
-        logger.error(f"{e}")
-        raise HTTPException()
+        logger.error(f"User registration failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists",
+        )
+
+
+
 
