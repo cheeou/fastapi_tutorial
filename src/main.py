@@ -66,19 +66,8 @@ async def test_db_connection(db: Annotated[Session, Depends(get_db)]):
         201: {"description": "User created"},
     },
 )
-async def register(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
-
-    try:
-        new_user = user_service.register_user(user, db)
-        return {"message": f"User {new_user.username} registered"}
-
-    except Exception as e:
-        logger.error(f"User registration failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User already exists",
-        )
-
+async def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    return user_service.register_user(user, db)
 
 
 
