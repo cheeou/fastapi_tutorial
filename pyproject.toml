@@ -14,6 +14,8 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 webtool = "^0.0.11"
 python-dotenv = "^1.0.1"
+sqlalchemy = "^2.0.36"
+psycopg2 = "^2.9.10"
 
 
 [build-system]
