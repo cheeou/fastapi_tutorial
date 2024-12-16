@@ -6,12 +6,13 @@ class UserBase(BaseModel):
     disabled: bool = False  # 기본값 설정
 
     class Config:
-        orm_mode = True  # SQLAlchemy 모델과 호환되도록 설정
+        from_attributes = True
 
 
 # 사용자 생성 시 요청 스키마
 class UserCreate(UserBase):
     password: str
     class Config:
-        orm_mode = True  # SQLAlchemy 모델과 호환 설정
+        from_attributes = True  # V2->SQLAlchemy 모델과 호환 설정
+        # orm_mode = True -> V1
 

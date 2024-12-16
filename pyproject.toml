@@ -8,14 +8,16 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.115.5"
-uvicorn = "^0.32.1"
+uvicorn = {extras = ["standard"], version = "^0.30.0"}
 bcrypt = "^4.2.1"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 webtool = "^0.0.11"
 python-dotenv = "^1.0.1"
 sqlalchemy = "^2.0.36"
-psycopg2 = "^2.9.10"
+psycopg2 = { version = "2.9.10", optional = true }
+psycopg2-binary = "^2.9.10"
+redis = "^5.2.1"
 
 
 [build-system]

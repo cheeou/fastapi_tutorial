@@ -7,11 +7,9 @@ from webtool.cache import RedisCache
 from webtool.utils import make_ed_key
 from webtool.auth import JWTService
 
-from services import UserService
-from models import User
-from database import Session
-from schema import UserCreate
-from database import init_db
+from src.services import UserService
+from src.database import Session, init_db
+from src.schema import UserCreate
 
 from sqlalchemy import text
 
@@ -28,7 +26,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-redis = RedisCache("redis://127.0.0.1:6379/0")
+redis = RedisCache("redis://127.0.0.1:63780/0")
 app = FastAPI()
 
 user_service = UserService()

@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - ./.env
+    container_name: postgres_server
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES__DB}
+      POSTGRES_USER: ${POSTGRES__USER}
+      POSTGRES_PASSWORD: ${POSTGRES__PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES__USER} -d ${POSTGRES__DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    ports:
+      - "${POSTGRES__PORT}:${POSTGRES__PORT}"
+
+  redis:
+    image: redis:alpine
+    env_file:
+      - ./.env
+    container_name: redis_server
+    ports:
+      - "${REDIS__LOCAL__PORT}:${REDIS__PORT}"
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=${REDIS__PASSWORD}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: always
+
+  fastapi_app:
+    build:
+      context: ../  # 프로젝트 루트를 context로 설정
+      dockerfile: docker/Dockerfile
+    container_name: fastapi_server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../src:/app/src  # 로컬 src 폴더를 컨테이너의 /app/src에 매핑
+    environment:
+      - PYTHONPATH=/app/src  # PYTHONPATH 설정 추가
+      - POSTGRES__HOST=${POSTGRES__HOST}
+      - POSTGRES__USER=${POSTGRES__USER}
+      - POSTGRES__PASSWORD=${POSTGRES__PASSWORD}
+      - POSTGRES__DB=${POSTGRES__DB}
+      - POSTGRES__PORT=${POSTGRES__PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+volumes:
+  redis_data:

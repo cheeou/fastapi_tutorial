@@ -3,9 +3,9 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 
-from database import Session
-from schema import UserCreate
-from models import User
+from src.database import Session
+from src.schema import UserCreate
+from src.models import User
 
 from dotenv import load_dotenv
 import os

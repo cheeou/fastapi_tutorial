@@ -1,17 +1,23 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+from pathlib import Path
+
 import os
 
-load_dotenv()
+dotenv_path = Path(__file__).resolve().parent.parent / "docker/.env"
+load_dotenv(dotenv_path)
 
-DATABASE_URL = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
+DATABASE_URL = f"postgresql://{os.getenv('POSTGRES__USER')}:{os.getenv('POSTGRES__PASSWORD')}@{os.getenv('POSTGRES__HOST')}:{os.getenv('POSTGRES__PORT')}/{os.getenv('POSTGRES__DB')}"
+print(f"pos host>>>>>>>>>{os.getenv("POSTGRES__HOST")}")
 """
 DATABASE_URL = "postgresql://myuser:mypassword@localhost:portnumber/myshop"
 ':///' : 상대적 경로
 ':////': 절대적 경로
 ':memory': 스토리지 X, 메모리에서 임시적으로 DB 사용. 접속 끊기면 DB 리셋
 """
+
+print(DATABASE_URL)
 
 engine = create_engine(DATABASE_URL, echo=True) # echo=True : SQL 쿼리 출력
 
@@ -35,5 +41,6 @@ class Base(DeclarativeBase):
     pass
 
 def init_db():
+    from src.models import User
     Base.metadata.create_all(bind=engine)
     print("Database initialized")
